@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb-service:
+    image: docker.io/library/mongo:latest
+    container_name: mongodb
+    networks:
+      - app-network
+    ports:
+      - "27017:27017"
+      
+  backend:
+    build:
+      context: ./questionnaire-backend
+    container_name: backend
+    depends_on:
+      - mongodb-service
+    networks:
+       - app-network
+    environment:
+      - uri=mongodb://mongodb-service:27017/questionnaire
+      
+  frontend:
+    build:
+      context: ./questionnaire-frontend
+    container_name: frontend
+    networks:
+      - app-network
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      
+networks:
+  app-network:
+    driver: bridge
